@@ -2,6 +2,7 @@ import { WEBGL } from 'three/examples/jsm/WebGL.js';
 import { Viewer } from './viewer.js';
 import { SimpleDropzone } from 'simple-dropzone';
 import { ValidationController } from './validation-controller.js';
+import { MaterialChangerController } from './materialchanger-controller.js';
 import queryString from 'query-string';
 
 if (!(window.File && window.FileReader && window.FileList && window.Blob)) {
@@ -21,6 +22,7 @@ class App {
     const hash = location.hash ? queryString.parse(location.hash) : {};
     this.options = {
       kiosk: Boolean(hash.kiosk),
+      materialOverride: true,
       model: hash.model || '',
       preset: hash.preset || '',
       cameraPosition: hash.cameraPosition
@@ -35,6 +37,8 @@ class App {
     this.dropEl = el.querySelector('.dropzone');
     this.inputEl = el.querySelector('#file-input');
     this.validationCtrl = new ValidationController(el);
+    var that = this;
+    this.materialChangerCtrl = new MaterialChangerController(el, (materials) => { return that.onMaterialChanged.call(that, materials); });
 
     this.createDropzone();
     this.hideSpinner();
@@ -122,9 +126,18 @@ class App {
       .then((gltf) => {
         if (!this.options.kiosk) {
           this.validationCtrl.validate(fileURL, rootPath, fileMap, gltf);
+        }if (this.options.materialOverride) {
+          this.materialChangerCtrl.setModel(gltf);
         }
         cleanup();
       });
+  }
+
+  /**
+   * @param {Dict} materials
+   */
+  onMaterialChanged(materials) {
+    this.viewer.changeMaterials(materials);
   }
 
   /**

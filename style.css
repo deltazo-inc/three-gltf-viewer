@@ -302,6 +302,19 @@ header h1 + .separator {
   text-align: center;
 }
 
+.material-changer-wrap {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom:0;
+  pointer-events: none;
+}
+
+.material-changer-wrap > div {
+  pointer-events: all;
+  max-height: 100%;
+  overflow: auto;
+}
 /******************************************************************************
  * CSS Spinner
  *

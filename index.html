@@ -48,7 +48,24 @@
       </div>
     </div>
     <div class="spinner"></div>
+    <div class="material-changer-wrap"></div>
   </main>
+  <script type="text/x-handlebars-template" id="material-changer-template">
+    <div class="material-changer">
+      {{#if materials}}
+      <ul>
+        {{#each materials}}
+          <li>
+            <label>{{this}}</label>
+            <input class="material-item" data-material-name="{{this}}" type="file" />
+          </li>
+        {{/each}}
+      </ul>
+      <button type="button" class="material-change-confirm">Change</button>
+      {{/if}}
+    </div>
+  
+  </script>
   <script type="text/x-handlebars-template" id="report-toggle-template">
     <div class="report-toggle level-{{issues.maxSeverity}}">
       <div class="report-toggle-text">

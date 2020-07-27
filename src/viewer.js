@@ -16,6 +16,7 @@ import {
   RGBFormat,
   Scene,
   SkeletonHelper,
+  TextureLoader,
   UnsignedByteType,
   Vector3,
   WebGLRenderer,
@@ -520,6 +521,46 @@ export class Viewer {
 
   updateBackground () {
     this.vignette.style({colors: [this.state.bgColor1, this.state.bgColor2]});
+  }
+
+  changeMaterials(changedMaterias) {
+    console.log(changedMaterias);
+
+    var imageDataUrl = function(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
+    };
+
+    traverseMaterials(this.content, (node) => {
+      console.log(node.name);
+      const textureLoader = new TextureLoader();
+      
+      if(changedMaterias[node.name]) {
+        console.log('Overwrite Material ' + node.name );
+        var textureFile = changedMaterias[node.name];
+
+        (function(file) {
+          var reader = new FileReader();
+            reader.onload = function(e) {
+              var imgData = e.target.result;
+              var map = textureLoader.load(imgData);
+              node.map = map;
+              node.needsUpdate = true;
+            };
+            // Read in the image file as a data URL.
+            reader.readAsDataURL(file);
+        })(textureFile);
+
+
+      } else {
+        console.log('Material ' + node.name + ' not changed.');
+      }
+
+    });
   }
 
   /**
