@@ -29,18 +29,22 @@ export class MaterialChangerController {
 
   setModel(gltf) {
     var materials = []
+    var materialMap = {}
     this.changer.materials = materials;
     gltf.scene.traverse((child) => {
         console.log(child);
         if( child.type === 'Mesh') {
+          if(!materialMap[child.material.name]) {
+            materialMap[child.material.name] = true;
             materials.push(child.material.name);
-            this.materialChangerEl.innerHTML = this.materialChangerTpl(this.changer);
-            this.materialChangerEl.querySelector('.material-change-confirm').addEventListener('click', (e) => {
-                this.changeMaterial();
-            });
+          }
         }
     });
 
+    this.materialChangerEl.innerHTML = this.materialChangerTpl(this.changer);
+    this.materialChangerEl.querySelector('.material-change-confirm').addEventListener('click', (e) => {
+      this.changeMaterial();
+    });
 
   }
 }
