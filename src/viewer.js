@@ -538,7 +538,6 @@ export class Viewer {
     traverseMaterials(this.content, (node) => {
       console.log(node.name);
       const textureLoader = new TextureLoader();
-      
       if(changedMaterias[node.name]) {
         console.log('Overwrite Material ' + node.name );
         var textureFile = changedMaterias[node.name];
@@ -548,6 +547,7 @@ export class Viewer {
             reader.onload = function(e) {
               var imgData = e.target.result;
               var map = textureLoader.load(imgData);
+              map.flipY = false;
               node.map = map;
               node.needsUpdate = true;
             };
