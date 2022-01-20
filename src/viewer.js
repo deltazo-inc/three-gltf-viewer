@@ -550,6 +550,15 @@ export class Viewer {
               var imgData = e.target.result;
               var map = textureLoader.load(imgData);
               map.flipY = false;
+
+              if (node.map) {
+                // copy current map repeat and offset to the new map
+                // this is for gltfpack (meshoptimizer) compressed models
+                // Also, in the model, you need to embed a texture image so that we can retrieve it here.
+                map.repeat.copy(node.map.repeat);
+                map.offset.copy(node.map.offset);
+              }
+
               node.map = map;
               node.needsUpdate = true;
             };
