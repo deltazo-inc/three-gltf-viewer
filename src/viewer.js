@@ -528,49 +528,73 @@ export class Viewer {
   changeMaterials(changedMaterias) {
     console.log(changedMaterias);
 
-    var imageDataUrl = function(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-      });
+    const changeMaterialWithTextureFile = (node, textureFile) => {
+      const textureLoader = new TextureLoader();
+      (function(file) {
+        var reader = new FileReader();
+          reader.onload = function(e) {
+            var imgData = e.target.result;
+            var map = textureLoader.load(imgData);
+            map.flipY = false;
+
+            if (node.map) {
+              // copy current map repeat and offset to the new map
+              // this is for gltfpack (meshoptimizer) compressed models
+              // Also, in the model, you need to embed a texture image so that we can retrieve it here.
+              map.repeat.copy(node.map.repeat);
+              map.offset.copy(node.map.offset);
+            }
+
+            node.map = map;
+            node.color = node.originalColor;
+            node.needsUpdate = true;
+          };
+          // Read in the image file as a data URL.
+          reader.readAsDataURL(file);
+      })(textureFile);
+    };
+
+    const changeMaterialWithColor = (node, color) => {
+      node.color = Object.assign({}, node.color, color);
+      node.map = null;
+      node.needsUpdate = true;
+    }
+
+    const backupOriginalMaterial = (node)  => {
+      if (!node.originalBackedup) {
+        node.originalBackedup = true;
+        node.originalMap = node.map;
+        node.originalColor = node.color;
+      }
+    };
+
+    const restoreOriginalMaterial = (node) => {
+      if (node.originalBackedup) {
+        node.map = node.originalMap;
+        node.color = node.originalColor;
+
+        node.needsUpdate = true;
+      }
     };
 
     traverseMaterials(this.content, (node) => {
-      console.log(node.name);
-      const textureLoader = new TextureLoader();
-      if(changedMaterias[node.name]) {
-        console.log('Overwrite Material ' + node.name );
-        var textureFile = changedMaterias[node.name];
 
-        (function(file) {
-          var reader = new FileReader();
-            reader.onload = function(e) {
-              var imgData = e.target.result;
-              var map = textureLoader.load(imgData);
-              map.flipY = false;
+      var changeOpt = changedMaterias.filter(m => m.uuid === node.uuid);
+      if(changeOpt.length > 0) {
+        backupOriginalMaterial(node);
 
-              if (node.map) {
-                // copy current map repeat and offset to the new map
-                // this is for gltfpack (meshoptimizer) compressed models
-                // Also, in the model, you need to embed a texture image so that we can retrieve it here.
-                map.repeat.copy(node.map.repeat);
-                map.offset.copy(node.map.offset);
-              }
-
-              node.map = map;
-              node.needsUpdate = true;
-            };
-            // Read in the image file as a data URL.
-            reader.readAsDataURL(file);
-        })(textureFile);
-
-
+        var opt = changeOpt[0];
+        if (opt.textureFile) {
+          console.log("Change with Texture - " + node.name + " - " + node.uuid);
+          changeMaterialWithTextureFile(node, opt.textureFile);
+        } else if (opt.color) {
+          console.log("Change with Color - " + node.name + " - " + node.uuid);
+          changeMaterialWithColor(node, opt.color);
+        }
       } else {
-        console.log('Material ' + node.name + ' not changed.');
+        restoreOriginalMaterial(node);
+        console.log("Keep - " + node.name + " - " + node.uuid);
       }
-
     });
   }
 

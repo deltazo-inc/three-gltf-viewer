@@ -55,16 +55,60 @@
       {{#if materials}}
       <ul>
         {{#each materials}}
-          <li>
-            <label>{{this}}</label>
-            <input class="material-item" data-material-name="{{this}}" type="file" />
+          <li class="changer-material-line">
+            <label class="title">Material Name: {{this.name}}</label>
+            <div class="before row">
+              <div class="column">
+                <label>Original Color</label>
+                <div class="square" style="background-color: {{materialColorToHtmlColor this.color}}"></div>
+              </div>
+              {{#if this.map}}
+              <div class="column">
+                <div class="texture">
+                  <img src="assets/icons/glTF-Viewer.png" />
+                  <span>Has Original Texture</span>
+                </div>
+              </div>
+              {{/if}}
+            </div>
+            <div class="after">
+              <label>
+                Replace with:
+              </label>
+              <div class="change-type-group">
+                <div>
+                  <input type="radio" class="change-type" id="{{this.uuid}}-rep-none" data-for-material="{{this.uuid}}"
+                  name="{{this.uuid}}-replacement" value="keep" checked>
+                  <label for="{{this.uuid}}-rep-none">Keep</label>
+                </div>
+                <div>
+                  <input type="radio" class="change-type" id="{{this.uuid}}-rep-texture" data-for-material="{{this.uuid}}"
+                  name="{{this.uuid}}-replacement" value="texture">
+                  <label for="{{this.uuid}}-rep-texture">Texture</label>
+                </div>
+                <div>
+                  <input type="radio" class="change-type" id="{{this.uuid}}-rep-color" data-for-material="{{this.uuid}}"
+                  name="{{this.uuid}}-replacement" value="color">
+                  <label for="{{this.uuid}}-rep-color">Color</label>
+                </div>
+              </div>
+
+              <div class="replace-texture" data-for-material="{{this.uuid}}" style="display:none">
+                <label>Texture</label>
+                <input type="file" class="material-texture" data-for-material="{{this.uuid}}" data-material-name="{{this.name}}" />
+              </div>
+
+              <div class="replace-color" data-for-material="{{this.uuid}}" style="display:none">
+                <label>Color</label>
+                <input type="color" class="material-color" data-for-material="{{this.uuid}}" data-material-name="{{this.name}}" value="#FFFFFF">
+               </div>
+            </div>
           </li>
         {{/each}}
       </ul>
       <button type="button" class="material-change-confirm">Change</button>
       {{/if}}
     </div>
-  
   </script>
   <script type="text/x-handlebars-template" id="report-toggle-template">
     <div class="report-toggle level-{{issues.maxSeverity}}">

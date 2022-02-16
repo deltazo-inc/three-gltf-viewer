@@ -225,6 +225,84 @@ header h1 + .separator {
 
 
 /******************************************************************************
+ * Material Changer
+ */
+
+ .material-changer-wrap {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom:0;
+  pointer-events: none;
+  width: 25%;
+}
+
+.material-changer-wrap > div {
+  pointer-events: all;
+  max-height: 100%;
+  overflow: auto;
+}
+
+.changer-material-line {
+   margin-top: 0.25em;
+   font-size: 12pt;
+   line-height: 12pt;
+ }
+
+.changer-material-line .title{
+  font-weight: bold;
+}
+
+.changer-material-line .texture {
+  position: relative;
+}
+
+.changer-material-line .texture span {
+  position: absolute;
+  left: 14pt;
+  top: 0pt;
+}
+
+.changer-material-line .texture img {
+  width: 12pt;
+  height: 12pt;
+}
+
+.changer-material-line .square {
+  height: 12pt;
+  width: 12pt;
+  display: inline-block;
+}
+
+.changer-material-line .change-type-group > div{
+  display: inline-block;
+}
+
+.changer-material-line .column {
+  float: left;
+  width: 50%;
+}
+
+.changer-material-line .row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.changer-material-line .before {
+  color: #404040;
+}
+
+.changer-material-line .after {
+  color: black;
+}
+
+.material-change-confirm {
+  margin-left: 20px;
+}
+
+
+/******************************************************************************
  * Validation report
  */
 
@@ -302,19 +380,6 @@ header h1 + .separator {
   text-align: center;
 }
 
-.material-changer-wrap {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom:0;
-  pointer-events: none;
-}
-
-.material-changer-wrap > div {
-  pointer-events: all;
-  max-height: 100%;
-  overflow: auto;
-}
 /******************************************************************************
  * CSS Spinner
  *
