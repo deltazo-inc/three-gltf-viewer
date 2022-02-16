@@ -23,15 +23,6 @@ export class MaterialChangerController {
   }
 
   changeMaterial() {
-    /*
-      var materials = {};
-      var items = this.materialChangerEl.querySelectorAll('.material-texture');
-      console.log(items);
-      for(var i = 0; i < items.length; i++ ) {
-          materials[items[i].getAttribute('data-material-name')] = items[i].files[0];
-      }
-      this.onMaterialChanged(materials);
-      */
 
     var materials = [];
 
@@ -74,7 +65,6 @@ export class MaterialChangerController {
 
     });
 
-    console.log(materials);
     this.onMaterialChanged(materials);
   }
 
@@ -85,7 +75,6 @@ export class MaterialChangerController {
     this.changer.materials = materials;
     gltf.scene.traverse((child) => {
       if( child.type === 'Mesh') {
-        console.log(child);
         if(!materialMap[child.material.uuid]) {
           materialMap[child.material.uuid] = true;
           materials.push(

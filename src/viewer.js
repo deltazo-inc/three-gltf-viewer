@@ -526,7 +526,6 @@ export class Viewer {
   }
 
   changeMaterials(changedMaterias) {
-    console.log(changedMaterias);
 
     const changeMaterialWithTextureFile = (node, textureFile) => {
       const textureLoader = new TextureLoader();
@@ -592,8 +591,8 @@ export class Viewer {
           changeMaterialWithColor(node, opt.color);
         }
       } else {
-        restoreOriginalMaterial(node);
         console.log("Keep - " + node.name + " - " + node.uuid);
+        restoreOriginalMaterial(node);
       }
     });
   }
