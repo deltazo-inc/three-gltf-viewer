@@ -544,6 +544,9 @@ export class Viewer {
               map.offset.copy(node.map.offset);
             }
 
+            // copy texture encoding from existing one to the loaded texture
+            map.encoding = node.map ? node.map.encoding : THREE.sRGBEncoding;
+
             node.map = map;
             node.color = node.originalColor;
             node.needsUpdate = true;
