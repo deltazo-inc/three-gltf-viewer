@@ -545,7 +545,7 @@ export class Viewer {
             }
 
             // copy texture encoding from existing one to the loaded texture
-            map.encoding = node.map ? node.map.encoding : THREE.sRGBEncoding;
+            map.encoding = node.map ? node.map.encoding : sRGBEncoding;
 
             node.map = map;
             node.color = node.originalColor;
