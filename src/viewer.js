@@ -16,7 +16,6 @@ import {
   Scene,
   SkeletonHelper,
   TextureLoader,
-  UnsignedByteType,
   Vector3,
   WebGLRenderer,
   sRGBEncoding,
@@ -471,7 +470,6 @@ export class Viewer {
     return new Promise( ( resolve, reject ) => {
 
       new RGBELoader()
-        .setDataType( UnsignedByteType )
         .load( path, ( texture ) => {
 
           const envMap = this.pmremGenerator.fromEquirectangular( texture ).texture;
