@@ -19,6 +19,8 @@ import {
   Vector3,
   WebGLRenderer,
   sRGBEncoding,
+  LinearToneMapping,
+  ACESFilmicToneMapping
 } from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -27,6 +29,7 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
 import { GUI } from 'dat.gui';
 
@@ -41,19 +44,6 @@ const DRACO_LOADER = new DRACOLoader( MANAGER ).setDecoderPath( `${THREE_PATH}/e
 const KTX2_LOADER = new KTX2Loader( MANAGER ).setTranscoderPath( `${THREE_PATH}/examples/js/libs/basis/` );
 
 const IS_IOS = isIOS();
-
-// glTF texture types. `envMap` is deliberately omitted, as it's used internally
-// by the loader but not part of the glTF format.
-const MAP_NAMES = [
-  'map',
-  'aoMap',
-  'emissiveMap',
-  'glossinessMap',
-  'metalnessMap',
-  'normalMap',
-  'roughnessMap',
-  'specularMap',
-];
 
 const Preset = {ASSET_GENERATOR: 'assetgenerator'};
 
@@ -84,8 +74,9 @@ export class Viewer {
       grid: false,
 
       // Lights
-      addLights: true,
+      punctualLights: true,
       exposure: 1.0,
+      toneMapping: LinearToneMapping,
       textureEncoding: 'sRGB',
       ambientIntensity: 0.3,
       ambientColor: 0xFFFFFF,
@@ -119,6 +110,8 @@ export class Viewer {
 
     this.pmremGenerator = new PMREMGenerator( this.renderer );
     this.pmremGenerator.compileEquirectangularShader();
+
+    this.neutralEnvironment = this.pmremGenerator.fromScene( new RoomEnvironment() ).texture;
 
     this.controls = new OrbitControls( this.defaultCamera, this.renderer.domElement );
     this.controls.autoRotate = false;
@@ -308,11 +301,11 @@ export class Viewer {
     this.scene.add(object);
     this.content = object;
 
-    this.state.addLights = true;
+    this.state.punctualLights = true;
 
     this.content.traverse((node) => {
       if (node.isLight) {
-        this.state.addLights = false;
+        this.state.punctualLights = false;
       } else if (node.isMesh) {
         // TODO(https://github.com/mrdoob/three.js/pull/18235): Clean up.
         node.material.depthWrite = !node.material.transparent;
@@ -396,13 +389,14 @@ export class Viewer {
     const state = this.state;
     const lights = this.lights;
 
-    if (state.addLights && !lights.length) {
+    if (state.punctualLights && !lights.length) {
       this.addLights();
-    } else if (!state.addLights && lights.length) {
+    } else if (!state.punctualLights && lights.length) {
       this.removeLights();
     }
 
-    this.renderer.toneMappingExposure = state.exposure;
+    this.renderer.toneMapping = Number(state.toneMapping);
+    this.renderer.toneMappingExposure = Math.pow(2, state.exposure);
 
     if (lights.length === 2) {
       lights[0].intensity = state.ambientIntensity;
@@ -462,10 +456,21 @@ export class Viewer {
   }
 
   getCubeMapTexture ( environment ) {
-    const { path } = environment;
+    const { id, path } = environment;
 
-    // no envmap
-    if ( ! path ) return Promise.resolve( { envMap: null } );
+    // neutral (THREE.RoomEnvironment)
+    if ( id === 'neutral' ) {
+
+      return Promise.resolve( { envMap: this.neutralEnvironment } );
+
+    }
+
+    // none
+    if ( id === '' ) {
+
+      return Promise.resolve( { envMap: null } );
+
+    }
 
     return new Promise( ( resolve, reject ) => {
 
@@ -660,8 +665,9 @@ export class Viewer {
     const envMapCtrl = lightFolder.add(this.state, 'environment', environments.map((env) => env.name));
     envMapCtrl.onChange(() => this.updateEnvironment());
     [
-      lightFolder.add(this.state, 'exposure', 0, 2),
-      lightFolder.add(this.state, 'addLights').listen(),
+      lightFolder.add(this.state, 'toneMapping', {Linear: LinearToneMapping, 'ACES Filmic': ACESFilmicToneMapping}),
+      lightFolder.add(this.state, 'exposure', -10, 10, 0.01),
+      lightFolder.add(this.state, 'punctualLights').listen(),
       lightFolder.add(this.state, 'ambientIntensity', 0, 2),
       lightFolder.addColor(this.state, 'ambientColor'),
       lightFolder.add(this.state, 'directIntensity', 0, 4), // TODO(#116)
@@ -795,11 +801,15 @@ export class Viewer {
     // dispose textures
     traverseMaterials( this.content, (material) => {
 
-      MAP_NAMES.forEach( (map) => {
+      for ( const key in material ) {
 
-        if (material[ map ]) material[ map ].dispose();
+        if ( key !== 'envMap' && material[ key ] && material[ key ].isTexture ) {
 
-      } );
+          material[ key ].dispose();
+
+        }
+
+      }
 
     } );
 
