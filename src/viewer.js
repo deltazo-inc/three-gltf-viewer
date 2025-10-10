@@ -17,6 +17,7 @@ import {
 	Scene,
 	SkeletonHelper,
 	TextureLoader,
+	SRGBColorSpace,
 	Vector3,
 	WebGLRenderer,
 	LinearToneMapping,
@@ -510,7 +511,7 @@ export class Viewer {
 						}
 
 						// copy texture encoding from existing one to the loaded texture
-						map.encoding = node.map ? node.map.encoding : sRGBEncoding;
+						map.encoding = node.map ? node.map.encoding : SRGBColorSpace;
 
 						node.map = map;
 						node.color = node.originalColor;

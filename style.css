@@ -221,9 +221,14 @@ footer .separator {
 }
 
 .changer-material-line {
-   margin-top: 0.25em;
-   font-size: 12pt;
-   line-height: 12pt;
+  margin-top: 0.25em;
+  font-size: 12pt;
+  line-height: 12pt;
+ }
+
+ .changer-material-line label, .changer-material-line span, .changer-material-line input {
+  color: #eee;
+  font: 11px 'Lucida Grande', sans-serif;
  }
 
 .changer-material-line .title{
@@ -249,6 +254,7 @@ footer .separator {
   height: 12pt;
   width: 12pt;
   display: inline-block;
+  vertical-align: middle;
 }
 
 .changer-material-line .change-type-group > div{
